@@ -38,7 +38,7 @@ def readCurveFitResult(filename = "../data/curveFitResult.txt"):
 def plotCurveFit(data, filename = "../figures/curveFit.pdf"):
     """plot and save curve fit to filename"""
     gaussians, voigts = readCurveFitResult()
-    n = 1000
+    n = 10000
     x = np.linspace(np.min(data[:, 0]), np.max(data[:, 0]), n)
     yGauss = np.zeros((n, len(gaussians)))
     yVoigt = np.zeros((n, len(voigts)))
@@ -54,17 +54,21 @@ def plotCurveFit(data, filename = "../figures/curveFit.pdf"):
         yTot += yGauss[:, i]
     for i in range(len(voigts)):
         yTot += yVoigt[:, i]
+
     fig = plt.figure()
     plt.grid()
-    plt.scatter(data[:, 0], data[:, 1], color = "grey")
-    plt.plot(x, yTot)
+    plt.scatter(data[:, 0], data[:, 1], color = "grey", label = "measured data", s = 15)
+    plt.plot(x, yTot, color = "red", label = "curve fit")
+    plt.ylabel("Intensity [a.u.]")
+    plt.xlabel(r"2$\theta[\degree]$")
+    plt.legend()
     plt.savefig(filename, dpi=600)
     plt.show()
 
 def plotCurveFitFunctions(data, filename = "../figures/curveFitFunctions.pdf"):
     """plot and save all functions used to curve fit, to filename"""
     gaussians, voigts = readCurveFitResult()
-    n = 1000
+    n = 10000
     x = np.linspace(np.min(data[:, 0]), np.max(data[:, 0]), n)
     yGauss = np.zeros((n, len(gaussians)))
     yVoigt = np.zeros((n, len(voigts)))
@@ -76,8 +80,7 @@ def plotCurveFitFunctions(data, filename = "../figures/curveFitFunctions.pdf"):
 
     fig = plt.figure()
     plt.grid()
-    plt.scatter(data[:, 0], data[:, 1], color = "grey", label = "data", s = 12)
-
+    plt.scatter(data[:, 0], data[:, 1], color = "grey", label = "measured data", s = 15)
     for i in range(len(voigts)):
         label = "voigt profiles" if i == 0 else "__nolegend__"
         plt.plot(x, yVoigt[:, i], color = "blue", label = label)
@@ -85,6 +88,8 @@ def plotCurveFitFunctions(data, filename = "../figures/curveFitFunctions.pdf"):
         label = "gaussian functions" if i == 0 else "__nolegend__"
         plt.plot(x, yGauss[:, i], color = "red", label = label)
 
+    plt.ylabel("Intensity [a.u.]")
+    plt.xlabel(r"2$\theta[\degree]$")
     plt.legend()
     plt.savefig(filename, dpi=600)
     plt.show()
@@ -92,7 +97,7 @@ def plotCurveFitFunctions(data, filename = "../figures/curveFitFunctions.pdf"):
 def saveCurveFitData(data, filename="../data/curveFitGaussians.txt"):
     """store curve fit data such that it can be used by integrate.py"""
     gaussians, voigts = readCurveFitResult()
-    n = 1000
+    n = 10000
     x = np.linspace(np.min(data[:, 0]), np.max(data[:, 0]), n)
     yGauss = np.zeros((n, len(gaussians)))
     for i in range(n):
