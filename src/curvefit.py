@@ -12,30 +12,33 @@ class CurveFit:
         self.result = None
 
     def addGaussian(self, center, sigma, height, minn, maxx):
+        """add gaussian function to model with parameters
+            as inputs except min, max, which are hints"""
         gaussModel = models.GaussianModel(prefix = f"m{self.count}")
         gaussModel.set_param_hint("center", min=minn, max=maxx)
         gaussModel.set_param_hint("sigma", min=1e-4, max=np.max(data[:, 0]))
         gaussParams = gaussModel.make_params(center=center, sigma=sigma, 
                                              height=height)
-
-        if self.model != None: self.model += gaussModel
-        else: self.model = gaussModel
+        self.model += gaussModel if self.model != None else gaussModel
         self.params.update(gaussParams)
         self.count += 1
 
     def addVoigt(self, center, sigma, height, gamma, minn, maxx):
+        """add voigt profile to model with parameters
+            as inputs except min, max, which are hints"""
         voigtModel = models.VoigtModel(prefix = f"m{self.count}")
         voigtModel.set_param_hint("center", min=minn, max=maxx)
         voigtModel.set_param_hint("sigma", min=1e-4, max=np.max(data[:, 0]))
         voigtParams = voigtModel.make_params(center=center, sigma=sigma, 
                                              height=height, gamma=gamma)
 
-        if self.model != None: self.model += voigtModel
-        else: self.model = voigtModel
+        self.model += voigtModel if self.model != None else voigtModel
         self.params.update(voigtParams)
         self.count += 1
 
     def execute(self, weights):
+        """perform curvefit with weights"""
+        assert self.model != None)
         self.result = self.model.fit(self.data[:, 1], self.params, 
                                      x=self.data[:, 0], weights=weights)
 
@@ -56,12 +59,15 @@ class CurveFit:
         plt.show()
 
     def saveResult(self, filename="../data/curveFitResult.txt"):
+        """save result to default filename"""
         assert(self.result != None)
         save_modelresult(self.result, filename)
 
 if __name__ == "__main__":
+    # read data
     data = np.loadtxt("../data/scan2.txt")
 
+    # cut data
     cutXLow, cutXHigh = 10., 28.
     cutIdxLow = (np.abs(data[:, 0] - cutXLow)).argmin()
     cutIdxHigh = (np.abs(data[:, 0] - cutXHigh)).argmin()

@@ -1,60 +1,18 @@
 from matplotlib import pyplot as plt
 import numpy as np
 
-def trapezoidalIntegration(data, a, b):
-    """ returns trapezoidal integral between a, b
-    finds nearest x values to a and b where b > a"""
+def plotData(data):
+    """plot y=intensity, x=2theta"""
+    fig = plt.figure()
+    plt.plot(data[:, 0], data[:, 1], color = "black")
+    plt.xlabel(r"2$\theta$")
+    plt.ylabel(r"$Intensity$")
+    plt.show()
 
-    aIdx = (np.abs(data[:, 0] - a)).argmin()
-    bIdx = (np.abs(data[:, 0] - b)).argmin()
-
-    T = 0
-    for i in range(aIdx, bIdx):
-        T += 0.5 * (data[i+1, 0] - data[i, 0]) * (data[i+1, 1] + data[i, 1])
-
-    return T, aIdx, bIdx
-
-def simpsonsIntegration(data, a, b):
-    """ returns simpsons integral between a, b
-    finds nearest x values to a and b where b > a"""
-    aIdx = (np.abs(data[:, 0] - a)).argmin()
-    bIdx = (np.abs(data[:, 0] - b)).argmin()
-
-    # assert odd number of points
-    cutData = data[aIdx:bIdx+1, :]
-    if (bIdx - aIdx + 1) % 2 == 0: 
-        bIdx += 1
-
-    T = data[aIdx, 1] + data[bIdx, 1]
-    for i in range(aIdx + 1, bIdx):
-        if i % 2 == 0:
-            T += 2. * data[i, 1]
-        else:
-            T += 4. * data[i, 1]
-
-    T *= (data[bIdx, 0] - data[bIdx - 1, 0]) / 3.
-
-    return T, aIdx, bIdx
-
-def compositeSimpsonsIntegration(data, a, b):
-    aIdx = (np.abs(data[:, 0] - a)).argmin()
-    bIdx = (np.abs(data[:, 0] - b)).argmin()
-
-    x, y = data[aIdx:bIdx+1, 0], data[aIdx:bIdx+1, 1]
-    points = len(x) - 1
-    dx = np.diff(x)
-
-    T = 0.0
-    for i in range(1, points, 2):
-        h2 = dx[i] + dx[i-1]
-        T += y[i] * (dx[i]**3 + dx[i-1]**3 + 3. * dx[i] * dx[i-1] * h2) / (6. * dx[i] * dx[i-1]) + y[i-1] * (2. * dx[i-1]**3 - dx[i]**3 + 3. * dx[i] * dx[i-1]**2) / (6. * dx[i-1] * h2) + y[i+1] * (2. * dx[i]**3 - dx[i-1]**3 + 3. * dx[i-1] * dx[i]**2) / (6. * dx[i] * h2)
-
-    if (points + 1) % 2 == 0:
-        T += y[points] * (2. * dx[points-1]**2 + 3. * dx[points-2] * dx[points-1]) / (6. * (dx[points-2] + dx[points-1])) + y[points-1] * (dx[points-1]**2 + 3. * dx[points-1]*dx[points-2]) / (6. * dx[points-2]) - y[points-2] * dx[points-1]**3 / (6. * dx[points-2] * (dx[points-2] + dx[points-1]))
-
-    return T, aIdx, bIdx
-
-def plot_integral(data, a, b, trapezoidals = False):
+def plotIntegral(data, a, b, trapezoidals = False):
+    """ plot that shows the integrated area,
+        if trapezoidals = True -> trapezoidal
+        area will show"""
     fig = plt.figure()
     plt.xlabel(r"2$\theta$")
     plt.ylabel(r"$Intensity$")
@@ -73,29 +31,63 @@ def plot_integral(data, a, b, trapezoidals = False):
             plt.plot([data[i, 0], data[i, 0], data[i+1, 0], data[i+1, 0]],
                      [0.0, data[i, 1], data[i+1, 1], 0.0], "o", color = "green")
             i += 1
-
     plt.show()
 
-def plot_data(data, lmda=0.7093):
-    fig = plt.figure()
-    plt.plot(data[:, 0], data[:, 1], color = "black")
-    plt.xlabel(r"2$\theta$")
-    plt.ylabel(r"$Intensity$")
-    plt.show()
+def trapezoidalIntegration(data, a, b):
+    """ returns trapezoidal integral between a, b
+    finds nearest x values to a and b where b > a"""
+    aIdx = (np.abs(data[:, 0] - a)).argmin()
+    bIdx = (np.abs(data[:, 0] - b)).argmin()
+    T = 0.
+    for i in range(aIdx, bIdx):
+        T += 0.5 * (data[i+1, 0] - data[i, 0]) * (data[i+1, 1] + data[i, 1])
+    return T, aIdx, bIdx
 
-    #fig = plt.figure()
-    #data = data[100:, :]
-    #plt.plot(lmda / (2*np.sin(data[:, 0]*np.pi/(180.0*2.0))), data[:, 1], color = "black")
-    #plt.xlabel(r"$d$")
-    #plt.ylabel(r"$Intensity$")
-    #plt.show()
+def simpsonsIntegration(data, a, b):
+    """ returns simpsons integral between a, b
+    finds nearest x values to a and b where b > a"""
+    aIdx = (np.abs(data[:, 0] - a)).argmin()
+    bIdx = (np.abs(data[:, 0] - b)).argmin()
+    cutData = data[aIdx:bIdx+1, :]
+    if (bIdx - aIdx + 1) % 2 == 0: bIdx += 1 # assert odd number of points
+
+    T = data[aIdx, 1] + data[bIdx, 1]
+    for i in range(aIdx + 1, bIdx):
+        if i % 2 == 0:
+            T += 2. * data[i, 1]
+        else:
+            T += 4. * data[i, 1]
+    T *= (data[bIdx, 0] - data[bIdx - 1, 0]) / 3.
+    return T, aIdx, bIdx
+
+def compositeSimpsonsIntegration(data, a, b):
+    """ returns composite simpsons integral between a, b
+    finds nearest x values to a and b where b > a"""
+    aIdx = (np.abs(data[:, 0] - a)).argmin()
+    bIdx = (np.abs(data[:, 0] - b)).argmin()
+
+    x, y = data[aIdx:bIdx+1, 0], data[aIdx:bIdx+1, 1]
+    points = len(x) - 1
+    dx = np.diff(x)
+
+    T = 0.
+    for i in range(1, points, 2):
+        h2 = dx[i] + dx[i-1]
+        T += y[i] * (dx[i]**3 + dx[i-1]**3 + 3. * dx[i] * dx[i-1] * h2) / (6. * dx[i] * dx[i-1]) + y[i-1] * (2. * dx[i-1]**3 - dx[i]**3 + 3. * dx[i] * dx[i-1]**2) / (6. * dx[i-1] * h2) + y[i+1] * (2. * dx[i]**3 - dx[i-1]**3 + 3. * dx[i-1] * dx[i]**2) / (6. * dx[i] * h2)
+
+    if (points + 1) % 2 == 0:
+        T += y[points] * (2. * dx[points-1]**2 + 3. * dx[points-2] * dx[points-1]) / (6. * (dx[points-2] + dx[points-1])) + y[points-1] * (dx[points-1]**2 + 3. * dx[points-1]*dx[points-2]) / (6. * dx[points-2]) - y[points-2] * dx[points-1]**3 / (6. * dx[points-2] * (dx[points-2] + dx[points-1]))
+
+    return T, aIdx, bIdx
 
 def performIntegration(data, idx, f):
+    """integrate data from idx[:, 0]->idx[:, 1]
+       with f method. print result"""
     integrals = np.zeros(len(idx))
     for i in range(len(idx)):
         a, b = idx[i, :]
         integrals[i], a, b = f(data, a, b)
-        plot_integral(data, a, b)
+        plotIntegral(data, a, b)
     
     for i in range(len(integrals)):
         print(f"I{i} = {integrals[i]}")
@@ -103,7 +95,6 @@ def performIntegration(data, idx, f):
     print(f"I2/I1 = {integrals[1]/integrals[0]*100} %")
     print(f"I3/I1 = {integrals[2]/integrals[0]*100} %")
     print("========\n")
-        
 
 if __name__ == "__main__":
     # read data
@@ -111,30 +102,28 @@ if __name__ == "__main__":
     dataUnknown = np.loadtxt("../data/scan2.txt")
     dataGauss = np.loadtxt("../data/curveFitGaussians.txt")
 
-    #plot_data(dataSi)
-    #plot_data(dataUnknown)
-    #plot_data(dataGauss)
-
+    plotData(dataSi)
+    plotData(dataUnknown)
+    plotData(dataGauss)
+    
+    # indexes used by dataUnknown integration
     kclIdx = np.array([
         [12.5, 13.5],
         [17.8, 18.8],
         [21.9, 22.9]])
-
     naclIdx = np.array([
         [14., 14.75],
         [20.1, 21.],
         [24.7, 25.6]])
-
     performIntegration(dataUnknown, naclIdx, compositeSimpsonsIntegration)
-
+    
+    # indexes used by dataGAuss integration
     kclIdx = np.array([
         [12.2, 13.8],
         [17.5, 19.0],
         [21.4, 23.9]])
-
     naclIdx = np.array([
         [13.5, 14.95],
         [19.5, 21.5],
         [24.7, 25.6]])
-
     performIntegration(dataGauss, naclIdx, compositeSimpsonsIntegration)
