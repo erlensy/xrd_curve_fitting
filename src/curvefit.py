@@ -19,7 +19,8 @@ class CurveFit:
         gaussModel.set_param_hint("sigma", min=1e-4, max=np.max(data[:, 0]))
         gaussParams = gaussModel.make_params(center=center, sigma=sigma, 
                                              height=height)
-        self.model += gaussModel if self.model != None else gaussModel
+        if self.model != None: self.model += gaussModel
+        else: self.model = gaussModel
         self.params.update(gaussParams)
         self.count += 1
 
@@ -32,13 +33,14 @@ class CurveFit:
         voigtParams = voigtModel.make_params(center=center, sigma=sigma, 
                                              height=height, gamma=gamma)
 
-        self.model += voigtModel if self.model != None else voigtModel
+        if self.model != None: self.model += voigtModel
+        else: self.model = voigtModel
         self.params.update(voigtParams)
         self.count += 1
 
     def execute(self, weights):
         """perform curvefit with weights"""
-        assert self.model != None)
+        assert(self.model != None)
         self.result = self.model.fit(self.data[:, 1], self.params, 
                                      x=self.data[:, 0], weights=weights)
 

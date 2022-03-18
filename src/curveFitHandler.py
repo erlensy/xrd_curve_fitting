@@ -35,7 +35,7 @@ def readCurveFitResult(filename = "../data/curveFitResult.txt"):
 
     return gaussians, voigts
 
-def plotCurveFit(data, filename = "../figures/curveFit.jpg"):
+def plotCurveFit(data, filename = "../figures/curveFit.pdf"):
     """plot and save curve fit to filename"""
     gaussians, voigts = readCurveFitResult()
     n = 1000
@@ -58,9 +58,10 @@ def plotCurveFit(data, filename = "../figures/curveFit.jpg"):
     plt.grid()
     plt.scatter(data[:, 0], data[:, 1], color = "grey")
     plt.plot(x, yTot)
+    plt.savefig(filename, dpi=600)
     plt.show()
 
-def plotCurveFitFunctions(data, filename = "../figures/curveFitFunctions.jpg"):
+def plotCurveFitFunctions(data, filename = "../figures/curveFitFunctions.pdf"):
     """plot and save all functions used to curve fit, to filename"""
     gaussians, voigts = readCurveFitResult()
     n = 1000
@@ -85,6 +86,7 @@ def plotCurveFitFunctions(data, filename = "../figures/curveFitFunctions.jpg"):
         plt.plot(x, yGauss[:, i], color = "red", label = label)
 
     plt.legend()
+    plt.savefig(filename, dpi=600)
     plt.show()
 
 def saveCurveFitData(data, filename="../data/curveFitGaussians.txt"):

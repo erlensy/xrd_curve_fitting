@@ -1,18 +1,22 @@
 from matplotlib import pyplot as plt
 import numpy as np
 
-def plotData(data):
+def plotData(data, typ):
     """plot y=intensity, x=2theta"""
+    filename = f"../figures/{typ}.pdf"
     fig = plt.figure()
     plt.plot(data[:, 0], data[:, 1], color = "black")
     plt.xlabel(r"2$\theta$")
     plt.ylabel(r"$Intensity$")
+    plt.savefig(filename, dpi=600)
     plt.show()
 
-def plotIntegral(data, a, b, trapezoidals = False):
+def plotIntegral(data, a, b, typ, trapezoidals = False):
     """ plot that shows the integrated area,
         if trapezoidals = True -> trapezoidal
         area will show"""
+    filename = f"../figures/{typ}_integral_{round(a)},{round(b)}.pdf"
+
     fig = plt.figure()
     plt.xlabel(r"2$\theta$")
     plt.ylabel(r"$Intensity$")
@@ -31,6 +35,8 @@ def plotIntegral(data, a, b, trapezoidals = False):
             plt.plot([data[i, 0], data[i, 0], data[i+1, 0], data[i+1, 0]],
                      [0.0, data[i, 1], data[i+1, 1], 0.0], "o", color = "green")
             i += 1
+
+    plt.savefig(filename, dpi=600)
     plt.show()
 
 def trapezoidalIntegration(data, a, b):
@@ -80,14 +86,14 @@ def compositeSimpsonsIntegration(data, a, b):
 
     return T, aIdx, bIdx
 
-def performIntegration(data, idx, f):
+def performIntegration(data, idx, f, typ):
     """integrate data from idx[:, 0]->idx[:, 1]
        with f method. print result"""
     integrals = np.zeros(len(idx))
     for i in range(len(idx)):
         a, b = idx[i, :]
         integrals[i], a, b = f(data, a, b)
-        plotIntegral(data, a, b)
+        plotIntegral(data, a, b, typ)
     
     for i in range(len(integrals)):
         print(f"I{i} = {integrals[i]}")
@@ -102,9 +108,9 @@ if __name__ == "__main__":
     dataUnknown = np.loadtxt("../data/scan2.txt")
     dataGauss = np.loadtxt("../data/curveFitGaussians.txt")
 
-    plotData(dataSi)
-    plotData(dataUnknown)
-    plotData(dataGauss)
+    plotData(dataSi, "si")
+    plotData(dataUnknown, "unknown")
+    plotData(dataGauss, "gauss")
     
     # indexes used by dataUnknown integration
     kclIdx = np.array([
@@ -115,7 +121,7 @@ if __name__ == "__main__":
         [14., 14.75],
         [20.1, 21.],
         [24.7, 25.6]])
-    performIntegration(dataUnknown, naclIdx, compositeSimpsonsIntegration)
+    performIntegration(dataUnknown, naclIdx, compositeSimpsonsIntegration, "unknown")
     
     # indexes used by dataGAuss integration
     kclIdx = np.array([
@@ -126,4 +132,4 @@ if __name__ == "__main__":
         [13.5, 14.95],
         [19.5, 21.5],
         [24.7, 25.6]])
-    performIntegration(dataGauss, naclIdx, compositeSimpsonsIntegration)
+    performIntegration(dataGauss, naclIdx, compositeSimpsonsIntegration, "gauss")
