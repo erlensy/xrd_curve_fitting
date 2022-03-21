@@ -39,7 +39,7 @@ def plotIntegral(data, a, b, typ, trapezoidals = False):
     plt.savefig(filename, dpi=600)
     plt.show()
 
-def trapezoidalIntegration(data, a, b):
+def compositeTrapezoidalIntegration(data, a, b):
     """ returns trapezoidal integral between a, b
     finds nearest x values to a and b where b > a"""
     aIdx = (np.abs(data[:, 0] - a)).argmin()
@@ -95,7 +95,7 @@ def performIntegration(data, idx, f, typ):
         integrals[i], a, b = f(data, a, b)
         plotIntegral(data, a, b, typ)
     
-    print("type : {typ}"
+    print("type : {typ}")
     for i in range(len(integrals)):
         print(f"I{i} = {integrals[i]}")
     print("---------")
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         [14., 14.75],
         [20.1, 21.],
         [24.7, 25.6]])
-    #performIntegration(dataUnknown, naclIdx, compositeSimpsonsIntegration, "unknown")
+    performIntegration(dataUnknown, naclIdx, compositeSimpsonsIntegration, "unknown")
     
     # indexes used by dataGAuss integration
     kclIdx = np.array([
@@ -133,17 +133,17 @@ if __name__ == "__main__":
         [13.5, 14.95],
         [19.5, 21.5],
         [24.7, 25.6]])
-    #performIntegration(dataGauss, naclIdx, compositeSimpsonsIntegration, "gauss")
+    performIntegration(dataGauss, naclIdx, compositeSimpsonsIntegration, "gauss")
 
     # indexes used by si integration
-    siIdx = np.array([
-        [11.93, 13.86],
-        [20.47, 21.9],
-        [24.38, 25.59]])
-    performIntegration(dataSi, siIdx, trapezoidalIntegration, "si")
+    #siIdx = np.array([
+    #    [11.93, 13.86],
+    #    [20.47, 21.9],
+    #    [24.38, 25.59]])
+    #performIntegration(dataSi, siIdx, trapezoidalIntegration, "si")
 
-    siIdx = np.array([
-        [12.25, 13.25],
-        [20.75, 21.75],
-        [24.37, 25.5]])
-    performIntegration(dataSi, siIdx, trapezoidalIntegration, "si")
+    #siIdx = np.array([
+    #    [12.25, 13.25],
+    #    [20.75, 21.75],
+    #    [24.37, 25.5]])
+    #performIntegration(dataSi, siIdx, trapezoidalIntegration, "si")
