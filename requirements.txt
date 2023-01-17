@@ -1,7 +1,7 @@
 asteval==0.9.26
 cycler==0.11.0
 fonttools==4.31.1
-future==0.18.2
+future==0.18.3
 kiwisolver==1.4.0
 lmfit==1.0.3
 matplotlib==3.5.1
